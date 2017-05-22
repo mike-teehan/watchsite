@@ -1,0 +1,37 @@
+#!/bin/bash
+
+URL="$1"
+
+if [ "$URL" == "" ]; then
+	URL="https://www.yahoo.com/"
+fi
+
+while [ 0 ]; do
+	CMD=$(wget -nv -T 1 -O /dev/null "$URL" 2>&1)
+	CODE=$?
+	RES=""
+	if [ $CODE -eq 0 ]; then
+		DUR=$(echo "$CMD" | awk '{ print $4 }')
+		RES="Success - $DUR bytes"
+	else
+		RES="Failed - |$CMD|"
+	fi
+	echo "$(date '+%Y-%m-%d %H:%M:%S') - $RES"
+	DELAY=15
+	REMAIN=0
+	while [ $DELAY -ge 0 ]; do
+		echo -ne "\r"
+		(( REMAIN=15-DELAY ))
+		printf '|'
+		if [ $DELAY -gt 0 ]; then
+			printf '=%.0s' $(seq 1 $DELAY)
+		fi
+		if [ $REMAIN -gt 0 ]; then
+			printf ' %.0s' $(seq 1 $REMAIN)
+		fi
+		printf '|'
+		(( DELAY=DELAY-1 ))
+		sleep 1
+	done
+	echo -ne "\r"
+done
